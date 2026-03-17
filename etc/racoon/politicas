@@ -1,0 +1,15 @@
+#!/usr/sbin/setkey -f
+
+flush;
+spdflush;
+
+#crear politicas para racoon
+
+
+spdadd 192.168.140.0/24 192.168.139.0/24 any -P out ipsec
+       esp/tunnel/10.10.0.98-10.10.0.90/require;
+
+spdadd 192.168.139.0/24 192.168.140.0/24 any -P in ipsec
+       esp/tunnel/10.10.0.90-10.10.0.98/require;
+
+

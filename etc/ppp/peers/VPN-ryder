@@ -1,0 +1,4 @@
+# PPTP Tunnel configuration for tunnel VPN-ryder
+# Server IP: 190.3.90.251
+name SDATORO
+file /etc/ppp/options.pptp

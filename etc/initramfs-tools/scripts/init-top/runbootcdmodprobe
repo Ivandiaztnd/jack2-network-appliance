@@ -1,0 +1,30 @@
+#!/bin/sh
+# runbootcdmodprobe
+
+# See manpage initramfs-tools(8)
+. /scripts/functions
+
+PREREQ=""
+prereqs()
+{
+    echo "$PREREQ"
+}
+
+case $1 in
+prereqs)
+    prereqs
+    exit 0
+    ;;
+esac
+
+if [ "$(grep "\<bootcd=bootcd\>" /proc/cmdline)" ]; then
+  # we are not called from cd with option bootcd=bootcd 
+
+  [ -x "/usr/share/bootcd/bootcdmodprobe" ] || panic "bootcdmodprobe not found"
+
+  log_begin_msg "Starting bootcdmodprobe"
+  /usr/share/bootcd/bootcdmodprobe ||panic "bootcdmodprobe failed"
+  log_end_msg
+fi
+
+exit 0

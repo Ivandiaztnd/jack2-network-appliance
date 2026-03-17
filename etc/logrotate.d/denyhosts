@@ -1,0 +1,10 @@
+/var/log/denyhosts {
+        create 0640 root root
+        missingok
+        weekly
+        rotate 7
+        compress
+        postrotate
+        	/etc/init.d/denyhosts restart > /dev/null
+	endscript
+}

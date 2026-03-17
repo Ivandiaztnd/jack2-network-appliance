@@ -1,0 +1,9 @@
+[34m[PREROUTING][0m
+[34m[POSTROUTING][0m
+1|iptables -t nat -A POSTROUTING -s 10.10.11.12/32 -d 0.0.0.0/0 -j SNAT --to 10.10.0.98 -m comment --comment ' nateo de la subred 11 11 '
+2|iptables -t nat -A POSTROUTING -s 10.10.11.13/32 -d 0.0.0.0/0 -j SNAT --to 10.10.0.98 -m comment --comment ' nateo de la subred 11 13 '
+3|iptables -t nat -A POSTROUTING -s 10.10.11.14/32 -d 0.0.0.0/0 -j SNAT --to 10.10.0.99 -m comment --comment ' nateo de la subred 11 14 '
+4|iptables -t nat -A POSTROUTING -s 10.10.11.15/32 -d 0.0.0.0/0 -j SNAT --to 10.10.0.99 -m comment --comment ' nateo de la subred 11 15 '
+5|iptables -t nat -A POSTROUTING -s 10.10.11.16/32 -d 0.0.0.0/0 -j SNAT --to 10.10.0.99 -m comment --comment ' nateo de la subred 11 16 '
+6|iptables -t nat -A POSTROUTING -s 10.10.13.0/24 -d 0.0.0.0/0 -j SNAT --to 10.10.0.99 -m comment --comment ' nateo de la subred 13 '
+[34m[OUTPUT][0m

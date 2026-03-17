@@ -1,0 +1,7 @@
+#!/bin/bash
+echo -n "Aplicar Cambios (S/N)? " 
+read ch
+if [ "$ch"="S" ] ;then
+cat /dev/null > /opt/jack2/jack2-dhcp-server.conf
+fi
+. ./dhcp-server.sh

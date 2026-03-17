@@ -1,0 +1,15 @@
+#offline_mode off
+#icp_port 3130
+
+
+err_html_text No estas autorizado
+
+
+hierarchy_stoplist cgi-bin ?
+acl QUERY urlpath_regex cgi-bin \?
+cache deny QUERY
+refresh_pattern ^ftp:           1440    20%     10080
+refresh_pattern ^gopher:        1440    0%      1440
+refresh_pattern .               0       20%     4320
+acl CONNECT method CONNECT
+

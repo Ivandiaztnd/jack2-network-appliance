@@ -1,0 +1,58 @@
+#!/bin/bash
+
+cd /root/jack2-dhcp-server/
+CONFIG_DNSMASQ=/opt/jack2/jack2-dhcp-server.conf
+
+#listen_address=10.10.0.91
+#ip_range_start=10.10.0.20
+#ip_range_end=10.10.0.100
+#ip_range_netmask=255.255.255.0
+#ip_range_gateway=10.10.0.254
+#ip_range_dns=200.69.193.1
+clear
+echo 
+echo -e "\033[34m[Set DHCP Server]\033[0m"
+echo
+echo -n " Listen Address: "; read listen_address
+echo -n " IP Range Start: "; read ip_range_start
+echo -n " IP Range End: "; read ip_range_end
+echo -n " IP Range Netmask: "; read ip_range_netmask
+echo -n " IP Range Router/GW: "; read ip_range_gateway
+echo -n " IP Range DNS: "; read ip_range_dns
+
+echo
+
+
+
+#obtiene la mascara de la listen_address
+NETMASK=$(ifconfig |grep $listen_address|sed s/"Mask:"/"#"/|cut -d "#" -f2|sed s/" "//g)
+
+
+cat /dev/null > /opt/jack2/jack2-dhcp-server.conf
+
+## muestra interfaces activas
+##ifconfig|grep -v "eth.:"|grep Link|grep -v inet6|awk '{print $1}'|sed s/" "//g
+
+
+#obtiene interfaz virtual si existe
+IF=$(ip address|sed s/secondary//g|grep -v link|sed s/"global"/"|"/g|grep "|"|grep $listen_address|cut -d "|" -f2|sed s/" "//g)
+
+
+INTERFACE=$(echo $IF|cut -d ":" -f1)
+
+if [ "$IF" != "$INTERFACE" ];then
+echo "ifconfig $IF down"  > $CONFIG_DNSMASQ
+echo "ifconfig $IF 0" >> $CONFIG_DNSMASQ
+echo "ifconfig $IF up" >> $CONFIG_DNSMASQ
+fi
+
+echo "ifconfig $INTERFACE $listen_address netmask $NETMASK up" >> $CONFIG_DNSMASQ
+
+
+echo "dnsmasq -K -z -i $INTERFACE -a $listen_address -l /var/spool/dnsmasq.leases -x 9999 --dhcp-option=6,$ip_range_dns --dhcp-option=3,$ip_range_gateway --dhcp-range=$ip_range_start,$ip_range_end,$ip_range_netmask,infinite" >> $CONFIG_DNSMASQ
+
+
+
+. ./dhcp-server.sh 
+
+

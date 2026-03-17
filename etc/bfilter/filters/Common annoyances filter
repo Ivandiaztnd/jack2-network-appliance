@@ -1,0 +1,236 @@
+###############################################################################
+#
+# Compiled at 01/11/2005 by Nicolay T. [tBB] tbb@hideout.ath.cx
+#
+###############################################################################
+
+[HTML Part 1]
+order=800
+match_count_limit=1
+if_flag=_HTML_
+set_flag=html_part1
+search=/(?=<(html|script)[\s>])/
+replace=<<END
+<script type="text/javascript">//<![CDATA[
+function FakedOne() { return true; }
+onerror=FakedOne;
+var BfIsIE = (navigator.userAgent.indexOf('MSIE') != -1 && navigator.userAgent.indexOf('Opera') == -1);
+window.offscreenBuffering = true;
+function status()         { return true; }
+function defaultStatus()  { return true; }
+//]]></script>
+END
+replacement_type=text
+
+
+[HTML Part 2]
+order=800
+if_flag=html_part1
+search=/$/
+replace=<<END
+<script type="text/javascript">//<![CDATA[
+function geovisit() { return true; }
+function nedstatbasic() { return true; }
+function clearEventBf(a) {
+if (!a)
+  return;
+  a.onabort     = null;
+  a.onblur      = null;
+  a.onclick     = null;
+  a.ondblclick  = null;
+  a.onfocus     = null;
+  a.onkeydown   = null;
+  a.onkeypress  = null;
+  a.onkeyup     = null;
+  a.onmousedown = null;
+  a.onmousemove = null;
+  a.onmouseup   = null;
+  a.onmove      = null;
+  a.onreset     = null;
+  a.onresize    = null;
+  a.onselect    = null;
+  a.onunload    = null;
+if (BfIsIE) 
+  {
+  a.onactivate         = null;
+  a.onafterprint       = null;
+  a.onafterupdate      = null;
+  a.onbeforeactivate   = null;
+  a.onbeforecopy       = null;
+  a.onbeforecut        = null;
+  a.onbeforedeactivate = null;
+  a.onbeforeeditfocus  = null;
+  a.onbeforepaste      = null;
+  a.onbeforeprint      = null;
+  a.onbeforeunload     = null;
+  a.onbeforeupdate     = null;
+  a.onbounce           = null;
+  a.oncellchange       = null;
+  a.oncontextmenu      = null;
+  a.oncontrolselect    = null;
+  a.oncopy             = null;
+  a.oncut              = null;
+  a.ondataavailable    = null;
+  a.ondatasetchanged   = null;
+  a.ondatasetcomplete  = null;
+  a.ondeactivate       = null;
+  a.ondrag             = null;
+  a.ondragend          = null;
+  a.ondragenter        = null;
+  a.ondragleave        = null;
+  a.ondragover         = null;
+  a.ondragstart        = null;
+  a.ondrop             = null;
+  a.onfilterchange     = null;
+  a.onfinish           = null;
+  a.onfocusin          = null;
+  a.onfocusout         = null;
+  a.onhelp             = null;
+  a.onlayoutcomplete   = null;
+  a.onlosecapture      = null;
+  a.onmousewheel       = null;
+  a.onmoveend          = null;
+  a.onmovestart        = null;
+  a.onpaste            = null;
+  a.onpropertychange   = null;
+  a.onreadystatechange = null;
+  a.onresizeend        = null;
+  a.onresizestart      = null;
+  a.onrowenter         = null;
+  a.onrowexit          = null;
+  a.onrowsdelete       = null;
+  a.onrowsinserted     = null;
+  a.onscroll           = null;
+  a.onselectionchange  = null;
+  a.onselectstart      = null;
+  a.onstart            = null;
+  a.onstop             = null;
+  }
+}
+function initBf() {
+  var i, f;
+  clearEventBf(document);
+  clearEventBf(document.body);
+  clearEventBf(window);
+}
+initBf();
+//]]></script>
+END
+replacement_type=text
+
+
+[XHTML Part 1]
+order=800
+match_count_limit=1
+content_type=/application/xhtml\+xml(;.*)?/
+if_flag=_XHTML_
+set_flag=xhtml_part1
+search=/(?=<(script|body|frameset)[\s>])/
+replace=<<END
+<script type="text/javascript">//<![CDATA[
+function FakedOne() { return true; }
+onerror=FakedOne;
+var BfIsIE = (navigator.userAgent.indexOf('MSIE') != -1 && navigator.userAgent.indexOf('Opera') == -1);
+window.offscreenBuffering = true;
+function status()         { return true; }
+function defaultStatus()  { return true; }
+//]]></script>
+END
+replacement_type=text
+
+
+[XHTML Part 2]
+order=800
+content_type=/application/xhtml\+xml(;.*)?/
+if_flag=xhtml_part1
+search=/(?=</html>)/
+replace=<<END
+<script type="text/javascript">//<![CDATA[
+function geovisit() { return true; }
+function nedstatbasic() { return true; }
+function clearEventBf(a) {
+if (!a)
+  return;
+  a.onabort     = null;
+  a.onblur      = null;
+  a.onclick     = null;
+  a.ondblclick  = null;
+  a.onfocus     = null;
+  a.onkeydown   = null;
+  a.onkeypress  = null;
+  a.onkeyup     = null;
+  a.onmousedown = null;
+  a.onmousemove = null;
+  a.onmouseup   = null;
+  a.onmove      = null;
+  a.onreset     = null;
+  a.onresize    = null;
+  a.onselect    = null;
+  a.onunload    = null;
+if (BfIsIE) 
+  {
+  a.onactivate         = null;
+  a.onafterprint       = null;
+  a.onafterupdate      = null;
+  a.onbeforeactivate   = null;
+  a.onbeforecopy       = null;
+  a.onbeforecut        = null;
+  a.onbeforedeactivate = null;
+  a.onbeforeeditfocus  = null;
+  a.onbeforepaste      = null;
+  a.onbeforeprint      = null;
+  a.onbeforeunload     = null;
+  a.onbeforeupdate     = null;
+  a.onbounce           = null;
+  a.oncellchange       = null;
+  a.oncontextmenu      = null;
+  a.oncontrolselect    = null;
+  a.oncopy             = null;
+  a.oncut              = null;
+  a.ondataavailable    = null;
+  a.ondatasetchanged   = null;
+  a.ondatasetcomplete  = null;
+  a.ondeactivate       = null;
+  a.ondrag             = null;
+  a.ondragend          = null;
+  a.ondragenter        = null;
+  a.ondragleave        = null;
+  a.ondragover         = null;
+  a.ondragstart        = null;
+  a.ondrop             = null;
+  a.onfilterchange     = null;
+  a.onfinish           = null;
+  a.onfocusin          = null;
+  a.onfocusout         = null;
+  a.onhelp             = null;
+  a.onlayoutcomplete   = null;
+  a.onlosecapture      = null;
+  a.onmousewheel       = null;
+  a.onmoveend          = null;
+  a.onmovestart        = null;
+  a.onpaste            = null;
+  a.onpropertychange   = null;
+  a.onreadystatechange = null;
+  a.onresizeend        = null;
+  a.onresizestart      = null;
+  a.onrowenter         = null;
+  a.onrowexit          = null;
+  a.onrowsdelete       = null;
+  a.onrowsinserted     = null;
+  a.onscroll           = null;
+  a.onselectionchange  = null;
+  a.onselectstart      = null;
+  a.onstart            = null;
+  a.onstop             = null;
+  }
+}
+function initBf() {
+  var i, f;
+  clearEventBf(document);
+  clearEventBf(document.body);
+  clearEventBf(window);
+}
+initBf();
+//]]></script>
+END
+replacement_type=text

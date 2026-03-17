@@ -1,0 +1,23 @@
+# Logrotate file for ippl
+
+/var/log/ippl/all.log {
+	notifempty
+	rotate 4
+	weekly
+	compress
+	missingok
+	postrotate
+		invoke-rc.d --quiet ippl reload > /dev/null
+	endscript
+}
+
+/var/log/ippl/udp.log {
+	notifempty
+	rotate 4
+	weekly
+	compress
+	missingok
+	postrotate
+		invoke-rc.d --quiet ippl reload > /dev/null
+	endscript
+}

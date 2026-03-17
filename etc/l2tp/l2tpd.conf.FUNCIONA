@@ -1,0 +1,39 @@
+[global]
+port = 1701
+
+;#---------------------  modo servidor ----------------------------#
+
+[lns default]
+ip range = 192.168.1.101-192.168.1.254
+local ip = 192.168.1.100
+require chap = yes
+refuse pap = yes
+require authentication = yes
+name = L2TPServer
+ppp debug = yes
+pppoptfile = /etc/ppp/options.l2tpd
+;length bit = yes 
+
+
+
+
+
+; Connect as a client to a server at 10.10.0.254
+
+
+[lac l2tpj]
+name = l2tpj
+lns = 10.10.0.254
+redial = yes
+redial timeout = 15
+hidden bit = no
+ppp debug = yes
+pppoptfile = /etc/ppp/options.l2tpd.client
+require authentication = no
+refuse authentication = yes
+require pap = yes
+refuse chap = yes
+;flow bit = yes
+;length bit = yes
+
+

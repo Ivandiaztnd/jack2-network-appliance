@@ -1,0 +1,4 @@
+pty "pptp 10.10.0.254 --nolaunchpppd"
+name user01
+remotename PPTP
+file /etc/ppp/options.pptp

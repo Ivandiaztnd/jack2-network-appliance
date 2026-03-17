@@ -1,0 +1,37 @@
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# The primary network interface
+allow-hotplug eth1
+iface eth1 inet static
+	address 10.10.0.90
+	netmask 255.255.255.0
+	network 10.10.0.0
+	broadcast 10.10.0.255
+	gateway 10.10.0.254
+	# dns-* options are implemented by the resolvconf package, if installed
+	dns-nameservers 200.69.193.1
+
+
+#iface LAN inet static
+#        address 10.10.11.109
+#        netmask 255.255.255.0
+#        network 10.10.11.0
+#        broadcast 10.10.11.255
+
+ 
+
+
+
+auto dsl-provider
+iface dsl-provider inet ppp
+pre-up /sbin/ifconfig eth0 up # line maintained by pppoeconf
+provider dsl-provider
+
+auto eth0
+
+iface eth0 inet manual

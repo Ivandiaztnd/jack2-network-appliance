@@ -1,0 +1,184 @@
+#
+# System configuration file for Mutt
+#
+
+# default list of header fields to weed when displaying
+#
+ignore "from " received content- mime-version status x-status message-id
+ignore sender references return-path lines
+ignore date delivered-to precedence errors-to in-reply-to user-agent
+ignore x-loop x-sender x-mailer x-msmail-priority x-mimeole x-ms- x-priority
+ignore x-accept-language x-authentication-warning thread- priority importance
+ignore x-original-to domainkey-signature dkim-signature
+
+# emacs-like bindings
+bind editor    "\e<delete>"    kill-word
+bind editor    "\e<backspace>" kill-word
+
+# map delete-char to a sane value
+bind editor     <delete>  delete-char
+
+# some people actually like these settings
+#set pager_stop
+#bind pager <up> previous-line
+#bind pager <down> next-line
+
+# don't add the hostname to the From header
+unset use_domain
+# don't generate a From header
+unset use_from
+
+# Specifies how to sort messages in the index menu.
+set sort=threads
+
+# Exim does not remove Bcc headers
+unset write_bcc
+# Postfix and qmail use Delivered-To for detecting loops
+unset bounce_delivered
+
+# weed out binary-only announcements to -devel-changes
+#macro index \CW T!~s\(.*source.*\)\nWn^T~A\n "Weed out binary-only announcements"
+
+# imitate the old search-body function
+macro index \eb "<search>~b " "search in message bodies"
+
+# simulate the old url menu
+macro index,pager \cb "<pipe-message> urlview<Enter>" "call urlview to extract URLs out of a message"
+macro attach,compose \cb "<pipe-entry> urlview<Enter>" "call urlview to extract URLs out of a message"
+
+# Show documentation when pressing F1
+macro generic <f1> "!zcat /usr/share/doc/mutt/manual.txt.gz | sensible-pager\n" "Show Mutt documentation"
+macro index   <f1> "!zcat /usr/share/doc/mutt/manual.txt.gz | sensible-pager\n" "Show Mutt documentation"
+macro pager   <f1> "!zcat /usr/share/doc/mutt/manual.txt.gz | sensible-pager\n" "Show Mutt documentation"
+
+# Use folders which match on \\.gz$ or \\.bz2$ as [gb]zipped folders:
+open-hook	\\.gz$ "gzip -cd %f > %t"
+close-hook	\\.gz$ "gzip -c %t > %f"
+append-hook	\\.gz$ "gzip -c %t >> %f"
+open-hook	\\.bz2$ "bzip2 -cd %f > %t"
+close-hook	\\.bz2$ "bzip2 -c %t > %f"
+append-hook	\\.bz2$ "bzip2 -c %t >> %f"
+
+# show the incoming mailboxes list (just like "mutt -y") and back when pressing "y"
+macro index,pager y "<change-folder>?<toggle-mailboxes>" "show incoming mailboxes list"
+bind browser y exit
+
+# If Mutt is unable to determine your site's domain name correctly, you can
+# set the default here.
+#
+# set hostname=cs.hmc.edu
+
+# If your sendmail supports the -B8BITMIME flag, enable the following
+#
+# set use_8bitmime
+
+##
+## *** DEFAULT SETTINGS FOR THE ATTACHMENTS PATCH ***
+##
+
+##
+## Please see the manual (section "attachments")  for detailed
+## documentation of the "attachments" command.
+##
+## Removing a pattern from a list removes that pattern literally. It
+## does not remove any type matching the pattern.
+##
+##  attachments   +A */.*
+##  attachments   +A image/jpeg
+##  unattachments +A */.*
+##
+## This leaves "attached" image/jpeg files on the allowed attachments
+## list. It does not remove all items, as you might expect, because the
+## second */.* is not a matching expression at this time.
+##
+## Remember: "unattachments" only undoes what "attachments" has done!
+## It does not trigger any matching on actual messages.
+
+## Qualify any MIME part with an "attachment" disposition, EXCEPT for
+## text/x-vcard and application/pgp parts. (PGP parts are already known
+## to mutt, and can be searched for with ~g, ~G, and ~k.)
+##
+## I've added x-pkcs7 to this, since it functions (for S/MIME)
+## analogously to PGP signature attachments. S/MIME isn't supported
+## in a stock mutt build, but we can still treat it specially here.
+##
+attachments   +A */.*
+attachments   -A text/x-vcard application/pgp.*
+attachments   -A application/x-pkcs7-.*
+
+## Discount all MIME parts with an "inline" disposition, unless they're
+## text/plain. (Why inline a text/plain part unless it's external to the
+## message flow?)
+##
+attachments   +I text/plain
+  
+## These two lines make Mutt qualify MIME containers.  (So, for example,
+## a message/rfc822 forward will count as an attachment.)  The first
+## line is unnecessary if you already have "attach-allow */.*", of
+## course.  These are off by default!  The MIME elements contained
+## within a message/* or multipart/* are still examined, even if the
+## containers themseves don't qualify.
+##
+#attachments  +A message/.* multipart/.*
+#attachments  +I message/.* multipart/.*
+
+## You probably don't really care to know about deleted attachments.
+attachments   -A message/external-body
+attachments   -I message/external-body
+
+# colors
+color normal	white black
+color attachment brightyellow black
+color hdrdefault cyan black
+color indicator black cyan
+color markers	brightred black
+color quoted	green black
+color signature cyan black
+color status	brightgreen blue
+color tilde	blue black
+color tree	red black
+#color header	brightgreen black ^From:
+#color header	brightcyan black ^To:
+#color header	brightcyan black ^Reply-To:
+#color header	brightcyan black ^Cc:
+#color header	brightblue black ^Subject:
+#color body	brightred black [\-\.+_a-zA-Z0-9]+@[\-\.a-zA-Z0-9]+
+#color body	brightblue black (https?|ftp)://[\-\.,/%~_:?&=\#a-zA-Z0-9]+
+
+# GnuPG configuration
+set pgp_decode_command="gpg --status-fd=2 %?p?--passphrase-fd 0? --no-verbose --quiet --batch --output - %f"
+set pgp_verify_command="gpg   --status-fd=2 --no-verbose --quiet  --batch  --output - --verify %s %f"
+set pgp_decrypt_command="gpg   --status-fd=2 %?p?--passphrase-fd 0? --no-verbose --quiet  --batch  --output - %f"
+set pgp_sign_command="gpg    --no-verbose --batch --quiet   --output - %?p?--passphrase-fd 0? --armor --detach-sign --textmode %?a?-u %a? %f"
+set pgp_clearsign_command="gpg --no-verbose --batch --quiet --output - %?p?--passphrase-fd 0? --armor --textmode --clearsign %?a?-u %a? %f"
+set pgp_encrypt_only_command="/usr/lib/mutt/pgpewrap gpg --batch --quiet --no-verbose --output - --encrypt --textmode --armor --always-trust -- -r %r -- %f"
+set pgp_encrypt_sign_command="/usr/lib/mutt/pgpewrap gpg %?p?--passphrase-fd 0? --batch --quiet --no-verbose --textmode --output - --encrypt --sign %?a?-u %a? --armor --always-trust -- -r %r -- %f"
+set pgp_import_command="gpg  --no-verbose --import %f"
+set pgp_export_command="gpg   --no-verbose --export --armor %r"
+set pgp_verify_key_command="gpg   --verbose --batch  --fingerprint --check-sigs %r"
+set pgp_list_pubring_command="gpg   --no-verbose --batch --quiet   --with-colons --list-keys %r" 
+set pgp_list_secring_command="gpg   --no-verbose --batch --quiet   --with-colons --list-secret-keys %r" 
+set pgp_good_sign="^\\[GNUPG:\\] GOODSIG"
+
+# S/MIME configuration
+set smime_ca_location="~/.smime/ca-bundle.crt"
+set smime_certificates="~/.smime/certificates"
+set smime_keys="~/.smime/keys"
+set smime_pk7out_command="openssl smime -verify -in %f -noverify -pk7out"
+set smime_get_cert_command="openssl pkcs7 -print_certs -in %f"
+set smime_get_signer_cert_command="openssl smime -verify -in %f -noverify -signer %c -out /dev/null"
+set smime_get_cert_email_command="openssl x509 -in %f -noout -email"
+set smime_import_cert_command="smime_keys add_cert %f"
+set smime_encrypt_command="openssl smime -encrypt %a -outform DER -in %f %c"
+set smime_sign_command="openssl smime -sign -signer %c -inkey %k -passin stdin -in %f -certfile %i -outform DER"
+# This alternative command does not include the full certificates chain.
+# Be sure to understand RFC 2315 section 9.1 before using it.
+# set smime_sign_command="openssl smime -sign -signer %c -inkey %k -passin stdin -in %f -outform DER"
+set smime_decrypt_command="openssl smime -decrypt -passin stdin -inform DER -in %f -inkey %k -recip %c"
+set smime_verify_command="openssl smime -verify -inform DER -in %s %C -content %f"
+set smime_verify_opaque_command="openssl smime -verify -inform DER -in %s %C"
+
+set mixmaster="mixmaster-filter"
+
+# See /usr/share/doc/mutt/README.Debian for details.
+source /usr/lib/mutt/source-muttrc.d|

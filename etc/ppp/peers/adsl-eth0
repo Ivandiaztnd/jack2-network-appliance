@@ -1,0 +1,18 @@
+lock
+debug
+asyncmap 0
+holdoff 10
+idle 10
+lcp-echo-interval 2
+lcp-echo-failure 7
+lcp-max-configure 30
+noipdefault
+hide-password
+noauth
+persist
+#mtu 1492
+maxfail 0
+plugin rp-pppoe.so eth0
+unit 9991
+user "43433788@speedyplus"
+defaultroute

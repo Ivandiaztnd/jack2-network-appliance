@@ -1,0 +1,7 @@
+lock
+noauth
+refuse-eap
+refuse-chap
+refuse-mschap
+nobsdcomp
+nodeflate

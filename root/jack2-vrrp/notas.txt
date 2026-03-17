@@ -1,0 +1,19 @@
+-D   # modo Demonio
+-i   # interfaz de red
+-v   # id de el server (numero de prioridad)
+-p   #prioridad , numero de prioridad
+
+
+luego sigue	
+
+IP 
+
+
+
+
+
+### CALCULA EL PREFIJO ######
+
+ipcalc 192.168.36.5 255.255.255.0|grep Netmask|cut -d "=" -f2|awk {'print $1'}
+
+

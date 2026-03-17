@@ -1,0 +1,111 @@
+[global]
+; listen_address = host:port
+; The address to bind the proxy to.
+; An empty host will cause binding to all IPs of that computer.
+; Several listen addresses separated with a comma may be specified.
+; Example: listen_address = 192.168.0.1:8000, 10.0.0.1:9000
+listen_address = 127.0.0.1:8080
+
+; client_compression = yes | no
+; If set to 'yes', all the textual data (Content-Type: text/*) will
+; be compressed before sending it to the client.
+; This option can be useful if you are on a slow connection and you set up
+; bfilter somewhere on a fast connection.  In other cases, setting this
+; option to 'yes', will just introduce additional latency to the loading
+; process.
+client_compression = no
+
+; ad_border = rrggbb | none
+; The default behavior is to draw borders around removed ads.
+; You may want to change the border color or turn the borders off.
+ad_border = 676767
+
+; page_cleanup = off | safe | maximum
+; Allows you to remove ads completely, as opposed to substituting them with
+; a clickable replacement image.  When set to "maximum", it worsens ad
+; detection accuracy.  This may result in both false-positives and
+; false-negatives.  When set to "safe", it doesn't worsen ad detection
+; accuracy, but some ads won't be removed.  For such ads, you can still
+; use "ad_border = none" to make them invisible but still clickable.
+page_cleanup = off
+
+; tray_icon_animation = yes | no
+; Enable or disable the tray icon animation.
+; The animation indicates traffic is going through BFilter. 
+tray_icon_animation = yes
+
+; max_script_fetch_size = size_in_kilobytes
+; Limits the size of external scripts that bfilter fetches.
+; Browsing with bfilter should feel as fast or faster than without it.
+; This was one of the main design goals. The only thing that can make it
+; feel slower is the necessity to fetch external scripts to analyze them.
+; A browser can usually cache them, but bfilter doesn't do it. If you have
+; a caching proxy server between bfilter and the internet, then it will
+; cache scripts for bfilter. Otherwise you may want to adjust this parameter.
+max_script_fetch_size = 45
+
+; max_script_eval_size = size_in_kilobytes
+; Basically just a protection against compressed scripts decompressing to
+; very large sizes.
+max_script_eval_size = 180
+
+; max_script_nest_level = number
+; Same reasoning as for max_script_fetch_size. A smaller value like 3 will
+; make bfilter faster, while a bigger value like 9 will make it detect more ads.
+; Personally I've never seen an ad that is generated at levels more than 6.
+; Setting this value to 0 will disable script processing at all.
+max_script_nest_level = 6
+
+; save_traffic_threshold = size_in_kilobytes
+; Sometimes bfilter needs to download an image or a flash file to determine
+; if it's an ad or not. Since bfilter tries to do everything on the fly,
+; it usually knows the answer before the whole file is downloaded. At that
+; time it checks how much data is left to be downloaded, and if it's more
+; than the value of this parameter (or if the size is unknown), bfilter will
+; drop the connection to the server in order to save some traffic. The default
+; value of 15 is good for most people, but if you use a dialup or a GPRS
+; connection, you may want to lower it to maybe 8, and if you use a satellite
+; connection, you may want to raise it to maybe 40.
+save_traffic_threshold = 15
+
+; report_client_ip = yes | no | fixed_ip
+; Enable reporting the client IP to servers using the X-Forwarded-For header.
+report_client_ip = no
+
+; allowed_tunnel_ports = port1, port2, from..to
+; Limits the ports for CONNECT requests. Ports allowed by default are
+; 443 and 563, which are used for https and nntps respectively.
+allowed_tunnel_ports = 443, 563
+
+
+[forwarding]
+
+; use_proxy = yes | no
+; Forward to an upstream proxy or connect directly.
+use_proxy = no
+
+; proxy_type = http | socks4 | socks4a | socks5
+proxy_type =
+
+proxy_host =
+
+proxy_port =
+
+; proxy_user = username
+; Upstream proxy authentication is currently implemented only for socks proxies. 
+proxy_user =
+
+; proxy_pass = password
+; Upstream proxy authentication is currently implemented only for socks proxies. 
+; Furthermore, socks4 and socks4a don't use password, just the username.
+proxy_pass =
+
+; no_proxy_for = host1, host2, host3
+; When use_proxy is set to 'yes', you may specify some hosts to be contacted
+; directly. The separator may be either a comma or a semicolon. If a host name
+; starts or ends with a dot, it is assumed that any prefix or suffix can be
+; appended to it. Example: no_proxy_for = .mydomain.com, 192.168.
+; When matching no_proxy_for hosts, no DNS queries are being made. That means
+; 127.0.0.1 won't act as localhost or the other way around. Also note
+; that .mydomain.com won't cover mydomain.com itself, but only its subdomains.
+no_proxy_for =

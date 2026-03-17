@@ -1,0 +1,36 @@
+# Some ad providers that either manage to avoid the heuristic detector,
+# or just consume too much traffic with their scripts.
+JS http://www.fortunecity.com/js/*
+JS */oasconfig/*
+FORBID /http://a\.[^\.]+\.falkag\.net/.*/
+JS http://js.redtram.com/*
+AD http://banners.adultfriendfinder.com/*
+AD http://link.link.ru/*
+
+# Hover ads (DHTML popups)
+FORBID /http://(www\.)?code-server\.biz/code/.*/
+FORBID /http://(www\.)?view4cash\.de/.*/
+FORBID /http://([^/]+\.)?layer-ads\.de/.*/
+FORBID http://engine.adnet.ru/*
+
+# Tooltip ads
+JS http://kona.kontera.com/javascript/*
+JS http://autocontext.begun.ru/*.js
+FORBID /http://[^/]+\.intellitxt\.com/intellitxt/.*/
+FORBID http://itxt.vibrantmedia.com/*
+
+# Some hints
+++++++ /http://ads[\d]*\..*/
++++++ /.*/(ad[sv]?|advert(isements?)?|banners?)[^a-z].*/
+++++ /http://clk\..*/
+++++ *banners*
++++ *banner*
++++ *click*
+
+# turns out akamai also hosts ads
+#----------- /http://[^/]*\.akamai\.net/.*/
+
+----- /http://[^/]*\.imageshack\.us/.*\.(jpe?g)|png/
+
+# yahoo image search results
+-------------------------- http://rds.yahoo.com/*

@@ -1,0 +1,156 @@
+#! /bin/sh
+# Description:       Now that TCP/IP is configured, mount the NFS file
+#                    systems in /etc/fstab if needed. If possible,
+#                    start the portmapper before mounting (this is needed for
+#                    Linux 2.1.x and up).
+#
+#                    Also mounts SMB filesystems now, so the name of
+#                    this script is getting increasingly inaccurate.
+
+PATH=/sbin:/bin
+. /lib/init/vars.sh
+
+. /lib/lsb/init-functions
+. /lib/init/mount-functions.sh
+
+do_start() {
+	[ -f /etc/fstab ] || return
+	#
+	# Read through fstab line by line. If it is NFS, set the flag
+	# for mounting NFS file systems. If any NFS partition is found and it
+	# not mounted with the nolock option, we start the portmapper.
+	# 
+	# If any sec={krb5,krb5i,krb5p} option is given, or any of the file
+	# systems are nfs4, we'll need to start rpc.gssd and/or rpc.idmapd too;
+	# we'll leave that to nfs-common.
+	#
+
+	exec 9<&0 </etc/fstab
+
+	portmap=no
+	NETFS=""
+	NETDEV=""
+	gss_or_idmap=no
+	while read DEV MTPT FSTYPE OPTS REST
+	do
+		case "$DEV" in
+		  ""|\#*)
+			continue
+			;;
+		esac
+		case "$OPTS" in
+		  noauto|*,noauto|noauto,*|*,noauto,*)
+			continue
+			;;
+		  _netdev|*,_netdev|_netdev,*|*,_netdev,*)
+			NETDEV=yes
+			;;
+		esac
+		case "$FSTYPE" in
+		  nfs|nfs4)
+			case "$OPTS" in
+			  nolock|*,nolock|nolock,*|*,nolock,*)
+				;;
+			  *)
+				portmap=yes
+				;;
+			esac
+			case "$OPTS" in
+			  sec=krb5|*,sec=krb5|sec=krb5,*|*,sec=krb5i,*|sec=krb5i|*,sec=krb5i|sec=krb5i,*|*,sec=krb5i,*|sec=krb5p|*,sec=krb5p|sec=krb5p,*|*,sec=krb5p,*)
+			  	gss_or_idmap=yes
+				;;
+			esac
+			;;
+		  smbfs|cifs|coda|ncp|ncpfs|ocfs2|gfs)
+			;;
+		  *)
+			FSTYPE=
+			;;
+		esac
+		if [ "$FSTYPE" ]
+		then
+			case "$NETFS" in
+			  $FSTYPE|*,$FSTYPE|$FSTYPE,*|*,$FSTYPE,*)
+				;;
+			  *)
+				NETFS="$NETFS${NETFS:+,}$FSTYPE"
+				;;
+			esac
+		fi
+		if [ "$FSTYPE" = "nfs4" ]
+		then
+			gss_or_idmap=yes
+		fi
+	done
+
+	exec 0<&9 9<&-
+
+	#
+	# With contemporary portmap packages it is no longer necessary
+	# to start portmap here because the package has its own initscript.
+	# This code will disappear after etch.
+	#
+	if [ "$portmap" = yes ]
+	then
+		if [ -x /sbin/portmap ] && ! pidof portmap >/dev/null 2>&1
+		then
+			if [ -x /etc/init.d/portmap ] 
+			then
+				/etc/init.d/portmap start
+			else
+				start-stop-daemon --start --quiet --oknodo --exec /sbin/portmap
+				sleep 1  # FIXME: Actually synchronize with the process?
+			fi
+		fi
+	fi
+
+	#
+	# Initialize nfs-common (which starts rpc.gssd and/or
+	# rpc.idmapd, and loads the right kernel modules if
+	# applicable) if we use Kerberos and/or NFSv4 mounts.
+	#
+	if [ "$gss_or_idmap" = yes ] && [ -x /etc/init.d/nfs-common ]
+	then
+		/etc/init.d/nfs-common start
+	fi
+
+	pre_mountall
+	if [ "$NETFS" ]
+	then
+		mount -a -t$NETFS
+	fi
+	if [ "$NETDEV" ]; then
+		mount -a -O _netdev
+	fi
+	post_mountall
+}
+
+
+# Using 'no !=' instead of 'yes =' to make sure async nfs mounting is
+# the default even without a value in /etc/default/rcS
+if [ no != "$ASYNCMOUNTNFS" ]; then
+    # Not for loopback!
+    [ "$IFACE" != "lo" ] || exit 0
+
+    # Lock around this otherwise insanity may occur
+    mkdir /var/run/network          2>/dev/null || true
+
+    if mkdir /var/run/network/mountnfs 2>/dev/null ; then
+	:
+    else
+	msg="if-up.d/mountnfs[$IFACE]: lock /var/run/network/mountnfs exist, not mounting"
+	log_failure_msg "$msg"
+	# Log if /usr/ is mounted
+	[ -x /usr/bin/logger ] && /usr/bin/logger -t "if-up.d/mountnfs[$IFACE]" "$msg"
+	exit 0
+    fi
+
+    on_exit() {
+        # Clean up lock when script exits, even if it is interrupted
+	rmdir /var/run/network/mountnfs 2>/dev/null || exit 0
+    }
+    trap on_exit EXIT # Enable emergency handler
+    do_start
+elif [ yes = "$FROMINITD" ] ; then
+    do_start
+fi

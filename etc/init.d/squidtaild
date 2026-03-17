@@ -1,0 +1,41 @@
+#! /bin/sh
+#
+# squidtaild
+#
+# Written by: Behan Webster <behanw@pobox.com>
+#
+
+NAME=squidtaild
+PATH=/bin:/usr/bin:/sbin:/usr/sbin
+DAEMON=/usr/sbin/squidtaild
+PID=/var/run/squidtaild.pid
+
+trap "" 1
+
+test -f $DAEMON || exit 0
+
+# See how we were called.
+case "$1" in
+  start)
+	printf "Starting $NAME: $NAME"
+	start-stop-daemon --start --background --quiet --exec $DAEMON
+	echo "."
+	;;
+  stop)
+	printf "Stopping $NAME: $NAME"
+	start-stop-daemon --stop --oknodo --quiet --pidfile /var/run/squidtaild.pid
+	rm -f $PID
+	echo "."
+	;;
+  restart | force-reload)
+	$0 stop
+	sleep 1
+	$0 start
+	;;
+  *)
+	echo "Usage: $NAME {start|stop|restart}"
+	exit 1
+	;;
+esac
+
+exit 0

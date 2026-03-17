@@ -1,0 +1,240 @@
+#!/bin/bash
+#
+# Written by Hugo Haas <hugo@debian.org>.
+# Modified by Marc Haber <mh+debian-packages@zugschlus.de>.
+
+### BEGIN INIT INFO
+# Provides:          ippl
+# Required-Start:    $local_fs $remote_fs $syslog $named $network $time
+# Required-Stop:     $local_fs $remote_fs $syslog $named $network
+# Should-Start:
+# Should-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: IP protocols logger
+# Description:       ippl writes information about incoming network traffic
+### END INIT INFO
+
+set -e
+
+if ! [ -x "/lib/lsb/init-functions" ]; then
+  . /lib/lsb/init-functions
+else
+  echo "E: /lib/lsb/init-functions not found, lsb-base (>= 3.0-6) needed"
+  exit 1
+fi
+
+PATH="/bin:/usr/bin:/sbin:/usr/sbin"
+
+RUNDIR="/var/run/ippl"
+PIDFILE="$RUNDIR/ippl.pid"
+CONFDIR="/etc"
+CONFDDIR="$CONFDIR/ippl.conf.d"
+CONFFILE="$RUNDIR/ippl.conf"
+IPPLCOMMENTS="no"
+
+DAEMON="/usr/sbin/ippl"
+NAME="ippl"
+DESC="IP protocols logger"
+
+test -f $DAEMON || exit 0
+
+# this is from madduck on IRC, 2006-07-06
+# There should be a better possibility to give daemon error messages
+# and/or to log things
+log()
+{
+  case "$1" in
+    [[:digit:]]*) success=$1; shift;;
+    *) :;;
+  esac
+  log_action_begin_msg "$1"; shift
+  log_action_end_msg ${success:-0} "$*"
+}
+
+
+# run-parts emulation, stolen from Branden's /etc/X11/Xsession
+# Addition: Use file.rul instead if file if it exists.
+run_parts () {
+        # reset LC_COLLATE
+        unset LANG LC_COLLATE LC_ALL
+
+        if [ -z "$1" ]; then
+                errormessage "$0: internal run_parts called without an argument"
+        fi
+        if [ ! -d "$1" ]; then
+                errormessage "$0: internal run_parts called, but $1 does not exist or is not a directory."
+        fi
+        for F in $(ls $1); do
+                if expr "$F" : '[[:alnum:]_-]\+$' > /dev/null 2>&1; then
+                        if [ -f "$1/$F" ] ; then
+                                if [ -f "$1/${F}.rul" ] ; then
+                                        echo "$1/${F}.rul"
+                                else
+                                        echo "$1/$F"
+                                fi
+                        fi
+                fi
+        done;
+}
+
+cat_parts() {
+       if [ -z "$1" ]; then
+               errormessage "$0: internal cat_parts called without an argument"
+       fi
+       if [ ! -d "$1" ]; then
+               exit 0
+       fi
+       for file in $(run_parts $1); do
+               echo "#####################################################"
+               echo "### $file"
+               echo "#####################################################"
+               cat $file
+               echo
+               echo "#####################################################"
+               echo "### end $file"
+               echo "#####################################################"
+       done
+}
+
+removecomments() {
+        if [ "x${IPPLCOMMENTS}" = "xno" ] ; then
+                grep -E -v '^[[:space:]]*#' | sed -e '/^$/N;/\n$/D' ;
+        else
+                cat
+        fi
+}
+
+# also from Branden
+errormessage () {
+        # pretty-print messages of arbitrary length (no trailing newline)
+        echo "$*" | fold -s -w ${COLUMNS:-80} >&2;
+}
+
+
+update_ippl_conf() {
+cat << EOF > ${CONFFILE}.tmp
+#########
+# WARNING WARNING WARNING
+# WARNING WARNING WARNING
+# WARNING WARNING WARNING
+# WARNING WARNING WARNING
+# WARNING WARNING WARNING
+# this file is generated dynamically from /etc/ippl/ippl.conf and the files
+# in /etc/ippl/ippl.conf.d
+# Any changes you make here will be lost.
+# WARNING WARNING WARNING
+# WARNING WARNING WARNING
+# WARNING WARNING WARNING
+# WARNING WARNING WARNING
+# WARNING WARNING WARNING
+#########
+EOF
+
+(cat ${CONFDIR}/ippl.conf 2>/dev/null; cat_parts ${CONFDDIR}) | \
+  removecomments \
+  >> ${CONFFILE}.tmp
+
+# test validity if called without -o
+# this is not currently possible with ippl,
+# but can be easily enabled with this (of course untested) example code
+#if [ "x${CONFFILE}" = "x${AUTOCONFIGFILE}" ] && \
+#        [ -x ${DAEMON} ] ; then
+#        if ! ${DAEMON} --config "${CONFFILE}.tmp" > /dev/null ; then
+#                errormessage "Invalid new configfile ${CONFFILE}.tmp"
+#                errormessage "not installing ${CONFFILE}.tmp to ${CONFFILE}"
+#                exit 1
+#        fi
+#fi
+
+mv -f ${CONFFILE}.tmp ${CONFFILE}
+}
+
+check_started () {
+  start-stop-daemon --stop --signal 0 --quiet --pid $PIDFILE >/dev/null
+  return $?
+}
+
+start () {
+  if ! check_started; then
+      start_daemon -p $PIDFILE $DAEMON -c /var/run/ippl/ippl.conf
+      ret=$?
+  else
+    log_failure_msg "already running!"
+    log_end_msg 1
+    exit 1
+  fi
+  return $ret
+}
+
+stop () {
+  start-stop-daemon --stop --quiet --pid $PIDFILE
+  return $?
+}
+
+status()
+{
+  log_action_begin_msg "checking $DAEMON"
+  if check_started; then
+    log_action_end_msg 0 "running"
+  else
+    if [ -e "$PIDFILE" ]; then
+      log_action_end_msg 1 "$DAEMON failed"
+      exit 1
+    else
+      log_action_end_msg 0 "not running"
+      exit 3
+    fi
+  fi
+}
+
+reload () {
+  if check_started; then
+    start-stop-daemon --stop --signal 1 --quiet --pid $PIDFILE >/dev/null
+  else
+    log_failure_msg "Not running."
+    log_end_msg 7
+    exit 7
+  fi
+}
+
+
+[ -e /var/run/ippl ] || \
+  install -d -oDebian-ippl -gDebian-ippl -m755 /var/run/ippl
+
+case "$1" in
+  start)
+    log_daemon_msg "Starting $DESC" "$NAME"
+    update_ippl_conf
+    start
+    log_end_msg $?
+    ;;
+  stop)
+    log_daemon_msg "Stopping $DESC" "$NAME"
+    stop
+    log_end_msg $?
+    ;;
+  restart)
+    log_daemon_msg "Restarting $DESC" "$NAME"
+    stop
+    if [ -z "$?" -o "$?" = "0" ]; then
+      start
+    fi
+    log_end_msg $?
+    ;;
+  reload|force-reload)
+    update_ippl_conf
+    log_daemon_msg "Reloading $DESC configuration files" "$NAME"
+    reload
+    log_end_msg $?
+    ;;
+  status)
+    status
+    ;;
+  *)
+    log_failure_msg "Usage: $0 {start|stop|restart|reload|force-reload|status}" >&2
+    exit 1
+    ;;
+esac
+
+exit 0

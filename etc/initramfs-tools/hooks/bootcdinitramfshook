@@ -1,0 +1,70 @@
+#!/bin/sh
+
+# See manpage initramfs-tools(8)
+. /usr/share/initramfs-tools/hook-functions
+
+PREREQ=""
+prereqs()
+{
+    echo "$PREREQ"
+}
+
+case $1 in
+prereqs)
+    prereqs
+    exit 0
+    ;;
+esac
+
+printbin()
+{
+  if [ -f /sbin/discover ]; then echo "/sbin/discover"
+  elif [ -f /bin/discover ]; then echo "/bin/discover"
+  elif [ -f /usr/bin/discover ]; then echo "/usr/bin/discover"; fi
+  ls /bin/grep
+
+  ls /usr/share/discover/*.lst 2>/dev/null
+  ls /usr/share/bootcd/bootcdmodprobe 2>/dev/null # see prerm
+  ls /usr/share/bootcd/bootcdproberoot 2>/dev/null # see prerm
+  ls /lib/modules/$k_vers/kernel/drivers/usb/host/*.*o 2>/dev/null # match *.o and *.ko
+  ls /lib/modules/$k_vers/kernel/drivers/usb/core/usbcore.*o 2>/dev/null # used for 2.6
+  ls /lib/modules/$k_vers/kernel/drivers/usb/usbcore.*o 2>/dev/null # used for 2.4
+  ls /lib/modules/$k_vers/kernel/drivers/usb/storage/usb-storage.*o 2>/dev/null
+  ls /lib/modules/$k_vers/kernel/drivers/cdrom/cdrom.*o 2>/dev/null
+  ls /lib/modules/$k_vers/kernel/drivers/scsi/scsi_mod.*o 2>/dev/null
+  ls /lib/modules/$k_vers/kernel/fs/nls/*.*o 2>/dev/null
+
+  # extra data for discover 2
+  for i in libdiscover2 discover-data discover;
+  do
+    [ -f /var/lib/dpkg/info/$i.list ] || continue
+    (
+    cat /var/lib/dpkg/info/$i.list |
+      grep -v "^/usr/share/doc" | # no docu
+      grep -v "^/usr/share/man" | # no manpages
+      grep -v "^/lib/"          | 
+      grep -v "^/usr/lib/"      |
+      grep -v "^/bin/"          | # goes to exe if needed
+      grep -v "^/usr/bin/"      | # goes to exe if needed
+      grep -v "^/sbin/"         | # goes to exe if needed
+      grep -v "^/usr/sbin/"       # goes to exe if needed
+    cat /var/lib/dpkg/info/$i.list |
+      grep "/lib/discover/" # we need discover xml data
+    ) |
+    while read f; do
+      [ -d $f ] && continue # no dirs
+      echo "$f"
+    done
+  done
+}
+
+# Begin real processing below this line
+
+manual_add_modules isofs
+manual_add_modules cdrom
+
+for i in $(printbin); do
+  mkdir -p $DESTDIR/$(dirname $i)
+  copy_exec $i $i
+done
+

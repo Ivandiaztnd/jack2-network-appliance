@@ -1,0 +1,9 @@
+ifconfig eth0:234 10.10.0.98 netmask 255.255.255.0 up
+ifconfig eth0:92 10.10.0.125 netmask 255.255.255.0 up
+#{DISABLED} ifconfig eth0:234 10.10.0.98 netmask 255.255.255.0 up
+#{DISABLED} ifconfig eth0:57 10.10.0.198 netmask 255.255.255.0 up
+#{DISABLED} ifconfig eth1:179 10.10.0.200 netmask 255.255.255.0 up
+#{DISABLED} ifconfig eth1:16 10.10.0.119 netmask 255.255.255.0 up
+#{DISABLED} ifconfig eth0:92 10.10.0.125 netmask 255.255.255.0 up
+#{DISABLED} ifconfig eth1:113 10.10.0.125 netmask 255.255.255.0 up
+#{DISABLED} ifconfig eth0:102 10.10.0.127 netmask 255.255.255.0 up

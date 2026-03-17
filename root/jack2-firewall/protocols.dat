@@ -1,0 +1,24 @@
+0		ip			43		ipv6-route
+1		icmp			44		ipv6-frag
+2		igmp			45		idrp
+3		ggp			46		rsvp
+4		ipencap			47		gre
+5		st			50		esp
+6		tcp			51		ah
+8		egp			57		skip
+9		igp			58		ipv6-icmp
+12		pup			59		ipv6-nonxt
+17		udp			60		ipv6-opts
+20		hmp			73		rspf
+22		xns-idp			81		vmtp
+27		rdp			88		eigrp
+29		iso-tp4			89		ospf
+36		xtp			93		ax.25
+37		ddp			94		ipip
+38		idpr-cmtp		97		etherip
+41		ipv6			98		encap
+103		pim					
+108		ipcomp					
+112		vrrp					
+115		l2tp					
+124		isis					

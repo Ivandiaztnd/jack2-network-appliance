@@ -1,0 +1,88 @@
+#! /bin/sh 
+#
+# Init script for denyhosts
+#
+# Author:	Marco Bertorello <marco@bertorello.ns0.it>.
+#
+### BEGIN INIT INFO
+# Provides:          denyhosts
+# Required-Start:    $syslog $local_fs $time
+# Required-Stop:     $syslog $local_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:	     0 1 6
+# Short-Description: Start denyhosts and watch .
+### END INIT INFO
+
+
+# Using LSB funtions:
+. /lib/lsb/init-functions
+
+set -e
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+DESC="DenyHosts"
+NAME=denyhosts
+DAEMON=/usr/bin/python
+DAEMONCTL=/usr/share/denyhosts/denyhosts_ctl.py
+PIDFILE=/var/run/$NAME.pid
+SCRIPTNAME=/etc/init.d/$NAME
+CONFIG=/etc/denyhosts.conf
+FLAGS="--config=$CONFIG"
+
+# Function that starts the daemon/service.
+d_start() {
+	# Gracefully exit if the package has been removed.
+	test -x $DAEMON || exit 5
+
+	if [ -e $PIDFILE ]; then
+		pid=$(cat $PIDFILE)
+		if kill -0 "$pid" > /dev/null; then
+			log_success_msg "$DESC already running"
+			return
+		else
+			log_success_msg "Removing stale PID file $PIDFILE."
+			rm -f $PIDFILE
+		fi
+	fi
+	log_daemon_msg "Starting $DESC" "$NAME"
+	start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $DAEMON --startas $DAEMONCTL -- start $FLAGS >/dev/null
+	log_end_msg $?
+}
+
+# Function that stops the daemon/service.
+d_stop() {
+	if [ -e $PIDFILE ]; then
+		pid=$(cat $PIDFILE)
+		if kill -0 "$pid" > /dev/null; then
+			log_daemon_msg "Stopping $DESC" "$NAME"
+			start-stop-daemon --stop --quiet --pidfile $PIDFILE
+			log_end_msg $?
+		else
+			log_failure_msg "I can't stop $DESC" "Maybe it's NOT runnig?"
+			rm -f $PIDFILE
+		fi
+	fi
+}
+
+# Function that sends a SIGHUP to the daemon/service.
+case "$1" in
+  start)
+        d_start
+	;;
+  stop)
+        d_stop
+	;;
+  restart|force-reload)
+	log_warning_msg "Restarting $DESC"
+	d_stop || /bin/true
+	sleep 1
+	d_start
+	log_warning_msg "Done"
+	;;
+  *)
+	log_warning_msg "Usage: $SCRIPTNAME {start|stop|restart|force-reload}" >&2
+	exit 3
+	;;
+esac
+
+exit 0

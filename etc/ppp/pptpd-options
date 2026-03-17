@@ -1,0 +1,17 @@
+name pptpd
+require-mschap-v2
+require-chap
+require-mschap
+#require-mppe-128
+#nodefaultroute
+lock
+#nobsdcomp
+noauth
+#refuse-pap
+#refuse-chap
+#refuse-mschap
+#proxyarp
+debug
+lock
+nodefaultroute
+#auth

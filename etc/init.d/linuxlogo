@@ -1,0 +1,49 @@
+#! /bin/sh -e
+### BEGIN INIT INFO
+# Provides:          linuxlogo
+# Required-Start:    $local_fs
+# Required-Stop:     $local_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 6
+# Short-Description: Color ANSI System Logo
+# Description:       Debian init script for linuxlogo
+### END INIT INFO
+#
+# Author:   Khalid El Fathi <invent@edena-fr.org>
+#
+set -e
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+DAEMON=/usr/bin/linux_logo
+NAME=linuxlogo
+DESC="operating system logo"
+
+test -x $DAEMON || exit 0
+. /lib/lsb/init-functions
+
+case "$1" in
+  start|restart|force-reload)
+	log_action_begin_msg "Updating the ${DESC}"
+	"$DAEMON" -f > /etc/issue.linuxlogo
+	"$DAEMON" -a -f > /etc/issue.linuxlogo.ascii
+	for F in /etc/issue.linuxlogo /etc/issue.linuxlogo.ascii
+	do
+	    printf "\n\n" >> $F
+	    cat /etc/issue >> $F
+	done
+	log_action_end_msg 0
+	;;
+  stop)
+	;;
+  display)
+  	"$DAEMON"
+	echo; echo; echo "Press any key to exit..."; read AKEY
+  	;;
+  *)
+	N=/etc/init.d/$NAME
+	echo "Usage: $N {start|stop|restart|force-reload|display}" >&2
+	exit 2
+	;;
+esac
+
+exit 0

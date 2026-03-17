@@ -1,0 +1,15 @@
+
+
+
+
+# source proxy.rules.ip
+ sh numproxy.sh |grep -v "^1|"|cut -d "|" -f2|grep "SOURCE"|grep src
+
+
+# url proxy.rules.url
+ sh numproxy.sh |grep -v "^1|"|cut -d "|" -f2|grep url_regex
+
+#ACL proxy.control
+
+sh numproxy.sh |grep -v "^1|"|cut -d "|" -f2|grep http_access
+

@@ -1,0 +1,32 @@
+
+### acl/20_exim4-config_whitelist_local_deny
+#################################
+
+# This is used to determine whitelisted senders and hosts.
+# It checks for CONFDIR/local_host_whitelist and
+# CONFDIR/local_sender_whitelist.
+#
+# It is meant to be used from some other acl entry.
+#
+# See exim4-config_files(5) for details.
+#
+# If the files do not exist, the white list never matches, which is
+# the desired behaviour.
+
+acl_whitelist_local_deny:
+  accept
+    hosts = ${if exists{CONFDIR/local_host_whitelist}\
+                 {CONFDIR/local_host_whitelist}\
+                 {}}
+  accept
+    senders = ${if exists{CONFDIR/local_sender_whitelist}\
+                   {CONFDIR/local_sender_whitelist}\
+                   {}}
+
+  # This hook allows you to hook in your own ACLs without having to
+  # modify this file. If you do it like we suggest, you'll end up with
+  # a small performance penalty since there is an additional file being
+  # accessed. This doesn't happen if you leave the macro unset.
+  .ifdef WHITELIST_LOCAL_DENY_LOCAL_ACL_FILE
+  .include WHITELIST_LOCAL_DENY_LOCAL_ACL_FILE
+  .endif

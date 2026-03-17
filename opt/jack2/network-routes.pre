@@ -1,0 +1,8 @@
+#ip route add 10.10.0.0/24 dev eth1:1
+#ip route add 10.10.0.0/24 dev eth0:1
+#ip route add 10.10.0.0/24 dev eth1:1
+ip route add 10.10.0.0/24 dev eth0:95
+ip route add 10.10.0.0/24 dev eth0:150
+ip route add  dev eth0:189
+ip route add 172.16.255.0/24 dev eth1:189
+ip route add 10.10.0.0/24 dev eth1:116
